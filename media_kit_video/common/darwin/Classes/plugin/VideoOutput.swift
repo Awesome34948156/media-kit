@@ -148,10 +148,19 @@ public class VideoOutput: NSObject {
   }
 
   private func _updateCallback() {
-    let size = videoSize
+    var size = videoSize
 
+    // The video output may not be configured yet, in which case mpv reports 0x0
+    // via `video-out-params`. Bailing here leaves `mpv_render_context_render`
+    // never called, while mpv only fires the update callback once — both sides
+    // then wait on each other forever (audio keeps playing, no picture).
+    // Fall back to the last known size, or 1x1 for the very first frame: the
+    // Dart side already hides a 1-pixel texture until real dimensions arrive,
+    // and mpv reconfigures to the real size right after this render.
     if size.width == 0 || size.height == 0 {
-      return
+      size = currentSize.width > 0 && currentSize.height > 0
+          ? currentSize
+          : CGSize(width: 1, height: 1)
     }
 
     if currentSize != size {
