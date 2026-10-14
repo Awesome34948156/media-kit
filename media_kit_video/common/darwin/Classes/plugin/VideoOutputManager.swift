@@ -15,13 +15,15 @@ public class VideoOutputManager: NSObject {
   public func create(
     handle: Int64,
     configuration: VideoOutputConfiguration,
-    textureUpdateCallback: @escaping VideoOutput.TextureUpdateCallback
+    textureUpdateCallback: @escaping VideoOutput.TextureUpdateCallback,
+    probeCallback: @escaping VideoOutput.ProbeCallback
   ) {
     let videoOutput = VideoOutput(
       handle: handle,
       configuration: configuration,
       registry: self.registry,
-      textureUpdateCallback: textureUpdateCallback
+      textureUpdateCallback: textureUpdateCallback,
+      probeCallback: probeCallback
     )
 
     self.videoOutputs[handle] = videoOutput

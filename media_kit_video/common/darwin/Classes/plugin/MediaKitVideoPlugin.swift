@@ -95,6 +95,17 @@ public class MediaKitVideoPlugin: NSObject, FlutterPlugin {
             ],
           ] as [String: Any]
         )
+      },
+      // 诊断探针：`VideoOutput` 里的上报回调，原样转成 `VideoOutput.Probe` 方法调用。
+      // Dart 侧的方法处理器在 switch 之前就 `debugPrint(call.method)` + `debugPrint(args)`，
+      // 所以新方法名会自己落进 app 日志（default 分支是空操作），Dart 侧无需改动。
+      probeCallback: { (args: [String: Any]) in
+        var arguments = args
+        arguments["handle"] = handle!
+        self.channel.invokeMethod(
+          "VideoOutput.Probe",
+          arguments: arguments
+        )
       }
     )
 
